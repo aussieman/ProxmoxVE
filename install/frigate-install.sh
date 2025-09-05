@@ -49,6 +49,7 @@ curl -fsSL "https://github.com/blakeblackshear/frigate/archive/refs/tags/v0.16.1
 tar -xzf frigate.tar.gz -C /opt/frigate --strip-components 1
 rm -rf frigate.tar.gz
 cd /opt/frigate
+msg_info "Debug 1"
 $STD pip3 wheel --wheel-dir=/wheels -r /opt/frigate/docker/main/requirements-wheels.txt
 cp -a /opt/frigate/docker/main/rootfs/. /
 export TARGETARCH="amd64"
@@ -59,12 +60,14 @@ $STD ln -svf /usr/lib/btbn-ffmpeg/bin/ffmpeg /usr/local/bin/ffmpeg
 $STD ln -svf /usr/lib/btbn-ffmpeg/bin/ffprobe /usr/local/bin/ffprobe
 $STD pip3 install -U /wheels/*.whl
 ldconfig
+msg_info "Debug 2"
 $STD pip3 install -r /opt/frigate/docker/main/requirements-dev.txt
 $STD /opt/frigate/.devcontainer/initialize.sh
 $STD make version
 cd /opt/frigate/web
 $STD npm install
 $STD npm run build
+msg_info "Debug 3"
 cp -r /opt/frigate/web/dist/* /opt/frigate/web/
 cp -r /opt/frigate/config/. /config
 sed -i '/^s6-svc -O \.$/s/^/#/' /opt/frigate/docker/main/rootfs/etc/s6-overlay/s6-rc.d/frigate/run
