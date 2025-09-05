@@ -51,14 +51,23 @@ rm -rf frigate.tar.gz
 cd /opt/frigate
 msg_info "Debug 1"
 $STD pip3 wheel --wheel-dir=/wheels -r /opt/frigate/docker/main/requirements-wheels.txt
+msg_info "Debug 1.1"
 cp -a /opt/frigate/docker/main/rootfs/. /
+msg_info "Debug 1.2"
 export TARGETARCH="amd64"
+msg_info "Debug 1.3"
 echo 'libc6 libraries/restart-without-asking boolean true' | debconf-set-selections
+msg_info "Debug 1.4"
 $STD /opt/frigate/docker/main/install_deps.sh
+msg_info "Debug 1.5"
 $STD apt update
+msg_info "Debug 1.6"
 $STD ln -svf /usr/lib/btbn-ffmpeg/bin/ffmpeg /usr/local/bin/ffmpeg
+msg_info "Debug 1.7"
 $STD ln -svf /usr/lib/btbn-ffmpeg/bin/ffprobe /usr/local/bin/ffprobe
+msg_info "Debug 1.8"
 $STD pip3 install -U /wheels/*.whl
+msg_info "Debug 1.9"
 ldconfig
 msg_info "Debug 2"
 $STD pip3 install -r /opt/frigate/docker/main/requirements-dev.txt
