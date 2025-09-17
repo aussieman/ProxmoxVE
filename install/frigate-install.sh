@@ -42,28 +42,47 @@ if [[ "$CTTYPE" == "0" ]]; then
 fi
 msg_ok "Set Up Hardware Acceleration"
 
-msg_info "Installing Frigate v0.14.1 (Perseverance)"
+msg_info "Installing Frigate v0.16.1 (Perseverance)"
 cd ~
 mkdir -p /opt/frigate/models
-curl -fsSL "https://github.com/blakeblackshear/frigate/archive/refs/tags/v0.14.1.tar.gz" -o "frigate.tar.gz"
+curl -fsSL "https://github.com/blakeblackshear/frigate/archive/refs/tags/v0.16.1.tar.gz" -o "frigate.tar.gz"
 tar -xzf frigate.tar.gz -C /opt/frigate --strip-components 1
 rm -rf frigate.tar.gz
 cd /opt/frigate
+msg_info "Debug 1. Installing pythion dependencies..."
 $STD pip3 wheel --wheel-dir=/wheels -r /opt/frigate/docker/main/requirements-wheels.txt
 cp -a /opt/frigate/docker/main/rootfs/. /
 export TARGETARCH="amd64"
 echo 'libc6 libraries/restart-without-asking boolean true' | debconf-set-selections
+
+# ---
+msg_info "Debug 1.1"
+# intel packages use zst compression so we need to update dpkg
+  apt-get install -y dpkg
+
+    # use intel apt intel packages
+  wget -qO - https://raw.githubusercontent.com/aussieman/ProxmoxVE/refs/heads/frigate_0.16.1/misc/ext/intel-graphics.key | gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics.gpg
+  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu jammy client" | tee /etc/apt/sources.list.d/intel-gpu-jammy.list
+# ---
+
+msg_info "Debug 2. Installing otehr dependencies..."
 $STD /opt/frigate/docker/main/install_deps.sh
+msg_info "Debug 3"
 $STD apt update
 $STD ln -svf /usr/lib/btbn-ffmpeg/bin/ffmpeg /usr/local/bin/ffmpeg
 $STD ln -svf /usr/lib/btbn-ffmpeg/bin/ffprobe /usr/local/bin/ffprobe
+msg_info "Debug 4"
 $STD pip3 install -U /wheels/*.whl
 ldconfig
+msg_info "Debug 5"
 $STD pip3 install -r /opt/frigate/docker/main/requirements-dev.txt
+msg_info "Debug 6"
 $STD /opt/frigate/.devcontainer/initialize.sh
 $STD make version
 cd /opt/frigate/web
+msg_info "Debug 7"
 $STD npm install
+msg_info "Debug 8"
 $STD npm run build
 cp -r /opt/frigate/web/dist/* /opt/frigate/web/
 cp -r /opt/frigate/config/. /config
